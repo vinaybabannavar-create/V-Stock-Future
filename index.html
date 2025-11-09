@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V Stock Future | Buy Stocks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #0e0e0e;
+      color: #e6e6e6;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 40px; background: #121212; border-bottom: 2px solid #1db954;
+    }
+    header img { height: 50px; border-radius: 10px; border: 2px solid #1db954; background: #fff; }
+    .nav_bar { display: flex; gap: 20px; }
+    .nav_bar a { color: #e6e6e6; text-decoration: none; font-weight: 600; }
+    .nav_bar a:hover { color: #1db954; }
+    .header_actions { display: flex; align-items: center; gap: 20px; position: relative; }
+    .action_container { text-decoration: none; color: #e6e6e6; display: flex; flex-direction: column; align-items: center; }
+    .action_container:hover { color: #1db954; }
+    .bag-item-count { position: absolute; top: -5px; right: -10px; background: red; color: white; border-radius: 50%; font-size: 10px; padding: 2px 6px; }
+
+    main { text-align: center; padding: 40px 20px; max-width: 1200px; margin: auto; }
+    h1 { color: #1db954; margin-bottom: 10px; }
+    .balance-box { border: 1px solid #1db954; background: #121212; display: inline-block; padding: 10px 20px; border-radius: 8px; margin-bottom: 30px; }
+    .items-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 25px; }
+    .item-container { background: #1a1a1a; border-radius: 12px; border: 1px solid #2a2a2a; padding: 20px; transition: .3s; }
+    .item-container:hover { transform: translateY(-4px); border-color: #1db954; }
+    .item-image { width: 100%; height: 120px; object-fit: contain; background: #fff; border-radius: 8px; padding: 8px; margin-bottom: 10px; }
+    .company-name { color: #1db954; font-weight: 700; margin-bottom: 5px; }
+    .item-name { color: #ccc; margin-bottom: 6px; }
+    .price { margin-bottom: 10px; }
+    .current-price { color: #1db954; font-weight: 700; }
+    .original-price { text-decoration: line-through; color: #888; font-size: 13px; margin-left: 5px; }
+    .discount { color: #ff4d4d; font-size: 13px; margin-left: 5px; }
+    .btn-add-bag { background: #1db954; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+    .btn-add-bag:hover { background: #17a348; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #1db954; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; opacity: 0; transform: translateY(30px); transition: .3s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="dashboard.html"><img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo"></a>
+    <nav class="nav_bar">
+      <a href="#">Markets</a><a href="#">Top Stocks</a><a href="#">Tech</a><a href="#">Banks</a><a href="#">Global</a>
+    </nav>
+    <div class="header_actions">
+      <a class="action_container" href="predicto.html">📊 Predicto</a>
+      <a class="action_container" href="sip.html">📈 SIP</a>
+      <a class="action_container" href="bag.html">🛍️ Bag <span id="bagCount" class="bag-item-count">0</span></a>
+    </div>
+  </header>
+
+  <main>
+    <h1>📈 Choose Stocks to Buy</h1>
+    <div class="balance-box">💰 Your Balance: ₹<span id="balance">0</span></div>
+    <div class="items-container" id="itemsContainer"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="items.js"></script>
+  <script>
+    const user = JSON.parse(localStorage.getItem("vstock_user_data"));
+    if (!user) { alert("Please login first!"); window.location.href = "login.html"; }
+
+    document.getElementById("balance").textContent = user.balance;
+
+    const container = document.getElementById("itemsContainer");
+    const bagCount = document.getElementById("bagCount");
+
+    // Load existing bag count
+    const existingBag = JSON.parse(localStorage.getItem("vstock_bag")) || [];
+    bagCount.textContent = existingBag.length;
+
+    // Display all items
+    items.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item-container";
+      div.innerHTML = `
+        <img src="${item.image}" alt="${item.company}" class="item-image">
+        <div class="company-name">${item.company}</div>
+        <div class="item-name">${item.item_name}</div>
+        <div class="price">
+          <span class="current-price">₹${item.current_price}</span>
+          <span class="original-price">₹${item.original_price}</span>
+          <span class="discount">(${item.discount_percentage}% OFF)</span>
+        </div>
+        <button class="btn-add-bag" onclick="addToBag(${item.id})">Add to Bag</button>`;
+      container.appendChild(div);
+    });
+
+    // ✅ Updated addToBag (complete version)
+    function addToBag(itemId) {
+      const user = JSON.parse(localStorage.getItem("vstock_user_data"));
+      if (!user) {
+        alert("Please login first!");
+        window.location.href = "login.html";
+        return;
+      }
+
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      let bag = JSON.parse(localStorage.getItem("vstock_bag")) || [];
+
+      // Check if already in bag
+      if (bag.some(i => i.id === item.id)) {
+        showToast("⚠️ Already in Bag!", "#ff4d4d");
+        return;
+      }
+
+      // ✅ Push full item object (includes image, prices, etc.)
+      bag.push(item);
+
+      localStorage.setItem("vstock_bag", JSON.stringify(bag));
+      bagCount.textContent = bag.length;
+
+      showToast(`✅ ${item.company} added to Bag!`);
+    }
+
+    // Toast message
+    function showToast(msg, color = "#1db954") {
+      const toast = document.getElementById("toast");
+      toast.style.background = color;
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+  </script>
+</body>
+</html>

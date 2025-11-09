@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Points | V Stock Future</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: radial-gradient(circle at top left, #0b0b0b 0%, #000 100%);
+      color: #fff;
+      text-align: center;
+      font-family: "Roboto", sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    h1 {
+      color: #1db954;
+      margin-bottom: 10px;
+    }
+
+    .rule {
+      font-size: 14px;
+      background: #1a1a1a;
+      padding: 8px 12px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      margin-bottom: 20px;
+      color: #ccc;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: #121212;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(29, 185, 84, 0.2);
+      width: 320px;
+      text-align: center;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #1db954;
+      width: 100%;
+      margin: 12px 0;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 16px;
+      text-align: center;
+      outline: none;
+    }
+
+    button {
+      background: #1db954;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #17a348;
+      transform: scale(1.02);
+    }
+
+    #message {
+      margin-top: 15px;
+      font-weight: 600;
+      color: #1db954;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      color: #1db954;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="rule" id="ruleText">⚠️ Please wait...</div>
+
+  <div class="card">
+    <h1>🏦 Add Points</h1>
+    <input type="number" id="amount" placeholder="Enter amount (₹)" />
+    <button onclick="addPoints()">Add Points</button>
+    <p id="message"></p>
+    <a href="dashboard.html">← Back to Dashboard</a>
+  </div>
+
+  <script>
+    // ✅ Load user
+    let user = JSON.parse(localStorage.getItem("vstock_user_data"));
+    if (!user) {
+      alert("Please login first!");
+      window.location.href = "login.html";
+    }
+
+    const DAILY_LIMIT = 5000;
+    const today = new Date().toISOString().split("T")[0];
+
+    // Reset daily limit if it's a new day
+    if (!user.lastAddDate || user.lastAddDate !== today) {
+      user.dailyAdded = 0;
+      user.lastAddDate = today;
+      localStorage.setItem("vstock_user_data", JSON.stringify(user));
+    }
+
+    // ✅ Display rule message
+    const ruleText = document.getElementById("ruleText");
+    const remaining = DAILY_LIMIT - (user.dailyAdded || 0);
+    ruleText.innerHTML = `
+      ⚠️ You can only add up to <b>₹${DAILY_LIMIT}</b> per day.<br>
+      💰 You’ve added <b>₹${user.dailyAdded || 0}</b> today.<br>
+      ✅ Remaining limit today: <b>₹${remaining}</b>.
+    `;
+
+    // ✅ Function to add points
+    function addPoints() {
+      const amt = parseFloat(document.getElementById("amount").value);
+      const messageEl = document.getElementById("message");
+
+      if (!amt || amt <= 0) {
+        messageEl.style.color = "#ff4d4d";
+        messageEl.textContent = "⚠️ Please enter a valid amount!";
+        return;
+      }
+
+      const remainingLimit = DAILY_LIMIT - user.dailyAdded;
+      if (amt > remainingLimit) {
+        messageEl.style.color = "#ff4d4d";
+        messageEl.innerHTML = `🚫 You can only add ₹${remainingLimit} more today!`;
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to add ₹${amt}?`)) return;
+
+      user.balance += amt;
+      user.dailyAdded += amt;
+      user.lastAddDate = today;
+      localStorage.setItem("vstock_user_data", JSON.stringify(user));
+
+      messageEl.style.color = "#1db954";
+      messageEl.innerHTML = `✅ ₹${amt} added successfully!<br>
+      💰 New Balance: ₹${user.balance}<br>
+      (Added Today: ₹${user.dailyAdded}/${DAILY_LIMIT})`;
+
+      // ✅ Update top info dynamically
+      const newRemaining = DAILY_LIMIT - user.dailyAdded;
+      ruleText.innerHTML = `
+        ⚠️ You can only add up to <b>₹${DAILY_LIMIT}</b> per day.<br>
+        💰 You’ve added <b>₹${user.dailyAdded}</b> today.<br>
+        ✅ Remaining limit today: <b>₹${newRemaining}</b>.
+      `;
+
+      // ✅ Toast
+      const toast = document.createElement("div");
+      toast.textContent = `💰 Balance Updated: ₹${user.balance}`;
+      toast.style.position = "fixed";
+      toast.style.bottom = "20px";
+      toast.style.right = "20px";
+      toast.style.background = "#1db954";
+      toast.style.color = "#fff";
+      toast.style.padding = "10px 20px";
+      toast.style.borderRadius = "8px";
+      toast.style.fontWeight = "600";
+      toast.style.boxShadow = "0 0 10px rgba(29,185,84,0.3)";
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
+  </script>
+</body>
+</html>

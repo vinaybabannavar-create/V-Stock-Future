@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Purchases | V Stock Future</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #0b0b0b;
+      color: #fff;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #1db954;
+      margin-bottom: 20px;
+    }
+    .purchases-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+    .purchase-card {
+      background: #151515;
+      border: 1px solid #1db95433;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .purchase-card:hover {
+      transform: translateY(-5px);
+      border-color: #1db954;
+      box-shadow: 0 0 10px rgba(29,185,84,0.3);
+    }
+    img {
+      width: 100%;
+      height: 120px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      padding: 6px;
+    }
+    .company {
+      color: #1db954;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .item {
+      color: #ccc;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .price {
+      color: #fff;
+      font-weight: 600;
+    }
+    .date {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+    .total-box {
+      margin-top: 30px;
+      background: #121212;
+      display: inline-block;
+      padding: 12px 25px;
+      border: 1px solid #1db954;
+      border-radius: 10px;
+      font-weight: 600;
+      color: #1db954;
+    }
+    a {
+      display: inline-block;
+      margin-top: 25px;
+      text-decoration: none;
+      color: #1db954;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>📊 My Purchased Stocks</h1>
+  <div class="purchases-container" id="purchasesContainer"></div>
+  <div id="totalBox" class="total-box" style="display:none;"></div>
+  <a href="dashboard.html">← Back to Dashboard</a>
+
+  <script>
+    // ✅ Load current user
+    const user = JSON.parse(localStorage.getItem("vstock_user_data"));
+    if (!user) {
+      alert("Please login first!");
+      window.location.href = "login.html";
+    }
+
+    // ✅ Generate unique purchase key for each user (email/name/id)
+    const purchaseKey = `vstock_purchased_${user.email || user.name || user.id || "guest"}`;
+
+    // ✅ Load only this user's purchases
+    const container = document.getElementById("purchasesContainer");
+    const purchases = (JSON.parse(localStorage.getItem(purchaseKey)) || []).reverse();
+
+    if (purchases.length === 0) {
+      container.innerHTML = `<p style="color:#aaa;font-size:18px;">You haven't purchased any stocks yet 👜</p>`;
+    } else {
+      container.innerHTML = purchases.map(item => `
+        <div class="purchase-card">
+          <img src="${item.image || 'https://via.placeholder.com/150?text=No+Image'}"
+               alt="${item.company}"
+               onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+          <div class="company">${item.company}</div>
+          <div class="item">${item.item_name}</div>
+          <div class="price">Bought for ₹${item.price}</div>
+          <div class="date">📅 ${item.date}</div>
+        </div>
+      `).join('');
+
+      // ✅ Show total spent
+      const total = purchases.reduce((sum, i) => sum + (i.price || 0), 0);
+      const totalBox = document.getElementById("totalBox");
+      totalBox.style.display = "inline-block";
+      totalBox.textContent = `💰 Total Spent on Stocks: ₹${total}`;
+    }
+  </script>
+</body>
+</html>

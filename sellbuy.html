@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>V Stock Future - Trading Simulator</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #0b0b0b;
+      color: #e6e6e6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #121212;
+      color: #1db954;
+      text-align: center;
+      padding: 15px;
+      font-size: 22px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #1db954;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(29, 185, 84, 0.1);
+    }
+
+    h2 {
+      color: #1db954;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      color: #e6e6e6;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+
+    th {
+      background: #151515;
+    }
+
+    tr:hover {
+      background: #202020;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
+
+    input {
+      background: #222;
+      color: #fff;
+    }
+
+    button {
+      background: #1db954;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #17a348;
+    }
+
+    .sell-btn {
+      background: #ff4d4d;
+    }
+
+    .sell-btn:hover {
+      background: #d93b3b;
+    }
+
+    #status {
+      margin-top: 10px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .positive { color: #1db954; }
+    .negative { color: #ff4d4d; }
+
+    footer {
+      background: #121212;
+      text-align: center;
+      padding: 10px;
+      color: #888;
+      font-size: 13px;
+      border-top: 1px solid #222;
+      margin-top: auto;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>📊 V Stock Future – Trading Simulator</header>
+
+  <div class="container">
+    <!-- Market Section -->
+    <div class="card">
+      <h2>📈 Market</h2>
+      <table id="marketTable">
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Price (₹)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Portfolio Section -->
+    <div class="card">
+      <h2>💼 Portfolio</h2>
+      <table id="portfolioTable">
+        <thead>
+          <tr>
+            <th>Stock</th>
+            <th>Qty</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p><b>Balance:</b> ₹<span id="balance">100000</span></p>
+    </div>
+  </div>
+
+  <!-- Trade Panel -->
+  <div class="card" style="margin: 20px;">
+    <h2>🪙 Trade Stocks</h2>
+    <input type="text" id="stockSymbol" placeholder="Enter stock name (e.g. Reliance)" />
+    <input type="number" id="quantity" placeholder="Enter quantity" />
+    <button onclick="buyStock()">Buy Stock</button>
+    <button class="sell-btn" onclick="sellStock()">Sell Stock</button>
+    <p id="status"></p>
+  </div>
+
+  <footer>© 2025 V Stock Future | Demo Stock Simulator</footer>
+
+  <script>
+    // Market Prices
+    let market = {
+      "NIFTY 50": 19850,
+      "Reliance": 2350,
+      "Sensex": 66200,
+      "Tesla": 24640,
+      "ICICI Bank": 960,
+      "SBI": 808,
+      "Mahindra": 3211,
+      "HDFC Bank": 1600
+    };
+
+    let portfolio = {};
+    let balance = 100000;
+
+    function updateMarket() {
+      const tbody = document.querySelector("#marketTable tbody");
+      tbody.innerHTML = "";
+      for (let stock in market) {
+        const price = market[stock].toFixed(2);
+        tbody.innerHTML += `<tr><td>${stock}</td><td>₹${price}</td></tr>`;
+      }
+    }
+
+    function updatePortfolio() {
+      const tbody = document.querySelector("#portfolioTable tbody");
+      tbody.innerHTML = "";
+      for (let stock in portfolio) {
+        tbody.innerHTML += `<tr><td>${stock}</td><td>${portfolio[stock]}</td></tr>`;
+      }
+      document.getElementById("balance").innerText = balance.toFixed(2);
+    }
+
+    function buyStock() {
+      const symbol = formatSymbol(document.getElementById("stockSymbol").value);
+      const qty = parseInt(document.getElementById("quantity").value);
+      const status = document.getElementById("status");
+
+      if (!market[symbol]) {
+        status.innerHTML = "❌ Stock not found!";
+        status.className = "negative";
+        return;
+      }
+
+      if (!qty || qty <= 0) {
+        status.innerHTML = "⚠️ Enter a valid quantity!";
+        status.className = "negative";
+        return;
+      }
+
+      const cost = market[symbol] * qty;
+      if (balance >= cost) {
+        balance -= cost;
+        portfolio[symbol] = (portfolio[symbol] || 0) + qty;
+        status.innerHTML = `✅ Bought ${qty} shares of ${symbol}`;
+        status.className = "positive";
+      } else {
+        status.innerHTML = "❌ Insufficient balance!";
+        status.className = "negative";
+      }
+      updatePortfolio();
+    }
+
+    function sellStock() {
+      const symbol = formatSymbol(document.getElementById("stockSymbol").value);
+      const qty = parseInt(document.getElementById("quantity").value);
+      const status = document.getElementById("status");
+
+      if (!portfolio[symbol] || portfolio[symbol] < qty) {
+        status.innerHTML = "❌ Not enough shares to sell!";
+        status.className = "negative";
+        return;
+      }
+
+      balance += market[symbol] * qty;
+      portfolio[symbol] -= qty;
+      if (portfolio[symbol] === 0) delete portfolio[symbol];
+      status.innerHTML = `✅ Sold ${qty} shares of ${symbol}`;
+      status.className = "positive";
+      updatePortfolio();
+    }
+
+    // Simulate market changes
+    function simulateMarket() {
+      for (let stock in market) {
+        let change = (Math.random() - 0.5) * 200;
+        market[stock] = Math.max(10, market[stock] + change);
+      }
+      updateMarket();
+    }
+
+    function formatSymbol(text) {
+      return text.trim().replace(/\s+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    updateMarket();
+    updatePortfolio();
+    setInterval(simulateMarket, 4000);
+  </script>
+</body>
+</html>
