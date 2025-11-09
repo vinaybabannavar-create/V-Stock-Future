@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIP Calculator | V Stock Future</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Roboto", sans-serif;
+      background: linear-gradient(135deg, #0b0b0b, #1a1a1a);
+      color: #e6e6e6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: #121212;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(29, 185, 84, 0.15);
+      width: 350px;
+      max-width: 90%;
+      text-align: center;
+      border: 1px solid #1db954;
+    }
+
+    .calculator h2 {
+      margin-bottom: 20px;
+      color: #1db954;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #e6e6e6;
+    }
+
+    input:focus {
+      border-color: #1db954;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #1db954;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #17a348;
+    }
+
+    .result {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .result span {
+      font-weight: bold;
+      color: #1db954;
+    }
+
+    canvas {
+      margin-top: 25px;
+      width: 100% !important;
+      height: 250px !important;
+    }
+
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .calculator {
+        padding: 20px;
+        width: 90%;
+      }
+
+      .calculator h2 {
+        font-size: 20px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <h2>💰 SIP Calculator</h2>
+
+    <label for="monthly">Monthly Investment (₹):</label>
+    <input type="number" id="monthly" placeholder="e.g. 5000" />
+
+    <label for="rate">Expected Annual Return (%):</label>
+    <input type="number" id="rate" placeholder="e.g. 12" />
+
+    <label for="years">Time Period (Years):</label>
+    <input type="number" id="years" placeholder="e.g. 10" />
+
+    <button onclick="calculateSIP()">Calculate</button>
+
+    <div class="result">
+      <p>Total Investment: <span id="totalInvestment">₹ 0</span></p>
+      <p>Estimated Returns: <span id="returns">₹ 0</span></p>
+      <p>Final Value: <span id="finalValue">₹ 0</span></p>
+    </div>
+
+    <canvas id="growthChart"></canvas>
+  </div>
+
+  <footer>© 2025 V Stock Future | Smart Investment Tools</footer>
+
+  <script>
+    let chartInstance = null;
+
+    function calculateSIP() {
+      const monthly = parseFloat(document.getElementById("monthly").value);
+      const rate = parseFloat(document.getElementById("rate").value) / 100 / 12;
+      const years = parseFloat(document.getElementById("years").value);
+      const months = years * 12;
+
+      if (isNaN(monthly) || isNaN(rate) || isNaN(years) || monthly <= 0 || rate <= 0 || years <= 0) {
+        alert("⚠️ Please enter valid values!");
+        return;
+      }
+
+      const finalValue = monthly * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate));
+      const totalInvestment = monthly * months;
+      const returns = finalValue - totalInvestment;
+
+      document.getElementById("totalInvestment").innerText = "₹ " + totalInvestment.toFixed(2);
+      document.getElementById("returns").innerText = "₹ " + returns.toFixed(2);
+      document.getElementById("finalValue").innerText = "₹ " + finalValue.toFixed(2);
+
+      drawChart(totalInvestment, returns, finalValue);
+    }
+
+    function drawChart(totalInvestment, returns, finalValue) {
+      const ctx = document.getElementById("growthChart").getContext("2d");
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Invested Amount", "Returns"],
+          datasets: [
+            {
+              data: [totalInvestment, returns],
+              backgroundColor: ["#1db954", "#00bcd4"],
+              borderColor: ["#1db954", "#00bcd4"],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: { color: "#e6e6e6" },
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => "₹ " + context.formattedValue,
+              },
+            },
+          },
+        },
+      });
+    }
+  </script>
+</body>
+</html>
