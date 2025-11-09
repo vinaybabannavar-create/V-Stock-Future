@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Predicto | V Stock Future</title>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #0b0b0b;
+      color: #e6e6e6;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+      background: #121212;
+      color: #1db954;
+      margin: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    #market {
+      flex: 2;
+    }
+
+    .portfolio {
+      flex: 1;
+      padding: 15px;
+      background: #151515;
+      border-radius: 8px;
+      border: 1px solid #1db95433;
+    }
+
+    .stock {
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      background: #1a1a1a;
+      transition: 0.3s;
+    }
+
+    .stock:hover {
+      border-color: #1db954;
+      box-shadow: 0 0 10px rgba(29,185,84,0.2);
+    }
+
+    button {
+      padding: 6px 12px;
+      margin: 4px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .buy { background: #1db954; }
+    .sell { background: #ff4d4d; }
+    .owned {
+      background: #555;
+      cursor: not-allowed;
+      color: #ccc;
+    }
+
+    .total-btn {
+      width: 100%;
+      background: #2d6cdf;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+
+    .total-btn:hover { background: #1e4ec7; }
+
+    .positive { color: #1db954; }
+    .negative { color: #ff4d4d; }
+
+    a {
+      text-decoration: none;
+      color: #1db954;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1db954;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 0 10px rgba(29,185,84,0.3);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: 0.4s ease;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📊 Stock Predicto Simulator</h1>
+
+  <div class="container">
+    <div id="market"></div>
+
+    <div class="portfolio">
+      <h2>💼 My Portfolio</h2>
+      <div id="portfolioList">No stocks yet</div>
+      <p><strong>Total Balance:</strong> ₹<span id="funds">0</span></p>
+
+      <a href="total.html"><button class="total-btn">📈 View Total Returns</button></a>
+      <a href="dashboard.html">← Back to Dashboard</a>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ✅ Load user and connect balance
+    let user = JSON.parse(localStorage.getItem("vstock_user_data"));
+    if (!user) {
+      alert("Please login first!");
+      window.location.href = "login.html";
+    }
+
+    let funds = user.balance;
+    let portfolio = JSON.parse(localStorage.getItem("predicto_portfolio")) || {};
+
+    const stocks = [
+      { symbol: "NIFTY 50", price: 19850 },
+      { symbol: "Reliance", price: 2350 },
+      { symbol: "Sensex", price: 66200 },
+      { symbol: "Tesla", price: 24640 },
+      { symbol: "ICICI Bank", price: 960 },
+      { symbol: "SBI", price: 807.85 },
+      { symbol: "Mahindra", price: 3211.3 },
+      { symbol: "HDFC Bank", price: 1600 },
+    ];
+
+    // ✅ Render Market
+    function renderMarket() {
+      const marketDiv = document.getElementById("market");
+      marketDiv.innerHTML = "<h2>📈 Live Market</h2>";
+
+      stocks.forEach(stock => {
+        const isOwned = portfolio[stock.symbol]?.qty > 0;
+        const div = document.createElement("div");
+        div.className = "stock";
+        div.innerHTML = `
+          <h3>${stock.symbol}</h3>
+          <p>Price: ₹<span id="price-${stock.symbol}">${stock.price.toFixed(2)}</span></p>
+          ${
+            isOwned
+              ? `<button class="owned">🟢 Owned (${portfolio[stock.symbol].qty})</button>`
+              : `<button class="buy" onclick="buy('${stock.symbol}')">Buy</button>`
+          }
+          <button class="sell" onclick="sell('${stock.symbol}')">Sell</button>
+        `;
+        marketDiv.appendChild(div);
+      });
+    }
+
+    // ✅ Render Portfolio
+    function renderPortfolio() {
+      const portDiv = document.getElementById("portfolioList");
+      if (Object.keys(portfolio).length === 0) {
+        portDiv.innerHTML = "No stocks yet";
+      } else {
+        portDiv.innerHTML = "";
+        for (let sym in portfolio) {
+          let item = portfolio[sym];
+          let currentPrice = stocks.find(s => s.symbol === sym)?.price || item.avgPrice;
+          let change = ((currentPrice - item.avgPrice) / item.avgPrice) * 100;
+          portDiv.innerHTML += `
+            <p>
+              <strong>${sym}</strong>: ${item.qty} shares @ ₹${item.avgPrice.toFixed(2)} |
+              Current ₹${currentPrice.toFixed(2)} |
+              <span class="${change >= 0 ? "positive" : "negative"}">${change.toFixed(2)}%</span>
+            </p>`;
+        }
+      }
+      document.getElementById("funds").innerText = funds.toFixed(2);
+      saveToLocal();
+      renderMarket(); // refresh stock buttons dynamically
+    }
+
+    // ✅ Toast message
+    function showToast(message, color = "#1db954") {
+      const toast = document.getElementById("toast");
+      toast.style.background = color;
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    // ✅ Buy function with feedback
+    function buy(symbol) {
+      const stock = stocks.find(s => s.symbol === symbol);
+      if (funds >= stock.price) {
+        funds -= stock.price;
+        if (!portfolio[symbol]) portfolio[symbol] = { qty: 0, avgPrice: 0 };
+        const item = portfolio[symbol];
+        item.avgPrice = ((item.avgPrice * item.qty) + stock.price) / (item.qty + 1);
+        item.qty++;
+        updateUserBalance();
+        renderPortfolio();
+        showToast(`✅ Bought 1 share of ${symbol} for ₹${stock.price.toFixed(2)}`);
+      } else {
+        showToast("❌ Not enough points!", "#ff4d4d");
+      }
+    }
+
+    // ✅ Sell function with feedback
+    function sell(symbol) {
+      if (portfolio[symbol] && portfolio[symbol].qty > 0) {
+        const stock = stocks.find(s => s.symbol === symbol);
+        funds += stock.price;
+        portfolio[symbol].qty--;
+        if (portfolio[symbol].qty === 0) delete portfolio[symbol];
+        updateUserBalance();
+        renderPortfolio();
+        showToast(`💰 Sold 1 share of ${symbol} for ₹${stock.price.toFixed(2)}`, "#1db954");
+      } else {
+        showToast("⚠️ You don’t own this stock!", "#ff4d4d");
+      }
+    }
+
+    // ✅ Live Price Updates
+    function updatePrices() {
+      stocks.forEach(stock => {
+        const change = (Math.random() - 0.5) * 20;
+        stock.price = Math.max(10, stock.price + change);
+        const priceEl = document.getElementById("price-" + stock.symbol);
+        if (priceEl) priceEl.innerText = stock.price.toFixed(2);
+      });
+      renderPortfolio();
+    }
+
+    // ✅ Save & Update
+    function saveToLocal() {
+      localStorage.setItem("predicto_portfolio", JSON.stringify(portfolio));
+      localStorage.setItem("vstock_user_data", JSON.stringify(user));
+    }
+
+    function updateUserBalance() {
+      user.balance = funds;
+      localStorage.setItem("vstock_user_data", JSON.stringify(user));
+    }
+
+    // ✅ Init
+    renderMarket();
+    renderPortfolio();
+    setInterval(updatePrices, 2000);
+  </script>
+</body>
+</html>

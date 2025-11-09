@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Total Portfolio | V Stock Future</title>
+  <style>
+    body {
+      background: #0b0b0b;
+      color: #e6e6e6;
+      font-family: "Roboto", sans-serif;
+      margin: 0;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: #1db954;
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: #121212;
+      border: 1px solid #1db95455;
+      border-radius: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 25px;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(29,185,84,0.2);
+    }
+
+    .summary p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .positive {
+      color: #1db954;
+      font-weight: 700;
+    }
+
+    .negative {
+      color: #ff4d4d;
+      font-weight: 700;
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 25px;
+      color: #1db954;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .total-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>📈 Total Portfolio Returns</h1>
+
+  <div class="summary" id="summaryBox">
+    <p>Loading your data...</p>
+  </div>
+
+  <a href="predicto.html">← Back to Predicto</a>
+
+  <script>
+    // ✅ Load user and portfolio from storage
+    const user = JSON.parse(localStorage.getItem("vstock_user_data"));
+    const portfolio = JSON.parse(localStorage.getItem("predicto_portfolio")) || {};
+
+    const summaryBox = document.getElementById("summaryBox");
+
+    if (!user) {
+      alert("Please login first!");
+      window.location.href = "login.html";
+    }
+
+    // ✅ Current simulated market prices (same as in predicto)
+    const stocks = [
+      { symbol: "NIFTY 50", price: 19850 },
+      { symbol: "Reliance", price: 2350 },
+      { symbol: "Sensex", price: 66200 },
+      { symbol: "Tesla", price: 24640 },
+      { symbol: "ICICI Bank", price: 960 },
+      { symbol: "SBI", price: 807.85 },
+      { symbol: "Mahindra", price: 3211.3 },
+      { symbol: "HDFC Bank", price: 1600 },
+    ];
+
+    // ✅ Calculate total values
+    let totalInvested = 0;
+    let totalCurrent = 0;
+
+    for (let sym in portfolio) {
+      const stock = stocks.find(s => s.symbol === sym);
+      const currentPrice = stock ? stock.price : portfolio[sym].avgPrice;
+      totalInvested += portfolio[sym].avgPrice * portfolio[sym].qty;
+      totalCurrent += currentPrice * portfolio[sym].qty;
+    }
+
+    const gainLoss = totalCurrent - totalInvested;
+    const gainPercent = totalInvested ? (gainLoss / totalInvested) * 100 : 0;
+    const totalWorth = totalCurrent + user.balance;
+
+    // ✅ Display summary
+    summaryBox.innerHTML = `
+      <p><strong>Total Invested:</strong> ₹${totalInvested.toFixed(2)}</p>
+      <p><strong>Current Portfolio Value:</strong> ₹${totalCurrent.toFixed(2)}</p>
+      <p><strong>Available Points (Cash):</strong> ₹${user.balance.toFixed(2)}</p>
+      <p><strong>Total Asset Worth:</strong> ₹${totalWorth.toFixed(2)}</p>
+      <div class="total-box ${gainLoss >= 0 ? 'positive' : 'negative'}">
+        ${gainLoss >= 0 ? '📈 Profit' : '📉 Loss'}:
+        ₹${gainLoss.toFixed(2)} (${gainPercent.toFixed(2)}%)
+      </div>
+    `;
+  </script>
+</body>
+</html>
