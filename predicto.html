@@ -4,30 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Stock Predicto | V Stock Future</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: 'Roboto', sans-serif;
       background: #0b0b0b;
       color: #e6e6e6;
-      margin: 0;
-      padding: 0;
+      overflow-x: hidden;
     }
 
-    h1 {
-      text-align: center;
-      padding: 20px;
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 25px;
       background: #121212;
-      color: #1db954;
-      margin: 0;
+      border-bottom: 2px solid #1db954;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
+    header h1 {
+      font-size: 22px;
+      color: #1db954;
+    }
+
+    .menu-btn {
+      font-size: 30px;
+      color: #1db954;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 230px;
+      background: #111;
+      border-right: 1px solid #1db954;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: -230px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+
+    .sidebar.active { left: 0; }
+
+    .sidebar img {
+      height: 60px;
+      border-radius: 10px;
+      margin-bottom: 25px;
+    }
+
+    .sidebar nav {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar a {
+      width: 90%;
+      color: #ccc;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      transition: 0.3s;
+      font-weight: 600;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #1db954;
+      color: #fff;
+    }
+
+    .sidebar .logout {
+      margin-top: auto;
+      color: #ff4d4d;
+      font-weight: 600;
+    }
+
+    /* OVERLAY */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 900;
+    }
+
+    .overlay.active { display: block; }
+
+    /* MAIN CONTAINER */
     .container {
       display: flex;
       justify-content: space-between;
       gap: 20px;
       padding: 20px;
       flex-wrap: wrap;
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
     }
+
+    .container.shifted { margin-left: 230px; }
 
     #market {
       flex: 2;
@@ -107,34 +205,80 @@
       opacity: 0;
       transform: translateY(30px);
       transition: 0.4s ease;
+      z-index: 2000;
     }
     .toast.show {
       opacity: 1;
       transform: translateY(0);
     }
+
+    @media (max-width: 900px) {
+      .sidebar { left: -230px; }
+      .sidebar.active { left: 0; }
+      .container.shifted { margin-left: 0; }
+    }
   </style>
 </head>
 <body>
 
-  <h1>📊 Stock Predicto Simulator</h1>
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
 
-  <div class="container">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo" />
+    <nav>
+      <a href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="viewstocks.html"><span class="material-symbols-outlined">bar_chart</span>View Stocks</a>
+      <a href="index.html"><span class="material-symbols-outlined">trending_up</span>Buy Stocks</a>
+      <a href="bag.html"><span class="material-symbols-outlined">shopping_bag</span>Stock Bag</a>
+      <a href="sip.html"><span class="material-symbols-outlined">calculate</span>SIP Calculator</a>
+      <a href="mypurchases.html"><span class="material-symbols-outlined">check_circle</span>Buy Success</a>
+      <a href="scratchcard.html"><span class="material-symbols-outlined">redeem</span>Scratch Cards</a>
+      <a href="predicto.html" class="active"><span class="material-symbols-outlined">show_chart</span>Predicto</a>
+    </nav>
+    <a href="login.html" class="logout"><span class="material-symbols-outlined">logout</span>Logout</a>
+  </aside>
+
+  <!-- Header -->
+  <header>
+    <button class="menu-btn" id="menuBtn"><span class="material-symbols-outlined">menu</span></button>
+    <h1>📊 Stock Predicto Simulator</h1>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container" id="mainContainer">
     <div id="market"></div>
-
     <div class="portfolio">
       <h2>💼 My Portfolio</h2>
       <div id="portfolioList">No stocks yet</div>
       <p><strong>Total Balance:</strong> ₹<span id="funds">0</span></p>
-
       <a href="total.html"><button class="total-btn">📈 View Total Returns</button></a>
       <a href="dashboard.html">← Back to Dashboard</a>
     </div>
   </div>
 
+  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
   <script>
-    // ✅ Load user and connect balance
+    // ✅ Sidebar toggle
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const menuBtn = document.getElementById("menuBtn");
+    const mainContainer = document.getElementById("mainContainer");
+
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    // ✅ Load user
     let user = JSON.parse(localStorage.getItem("vstock_user_data"));
     if (!user) {
       alert("Please login first!");
@@ -167,10 +311,9 @@
         div.innerHTML = `
           <h3>${stock.symbol}</h3>
           <p>Price: ₹<span id="price-${stock.symbol}">${stock.price.toFixed(2)}</span></p>
-          ${
-            isOwned
-              ? `<button class="owned">🟢 Owned (${portfolio[stock.symbol].qty})</button>`
-              : `<button class="buy" onclick="buy('${stock.symbol}')">Buy</button>`
+          ${isOwned
+            ? `<button class="owned">🟢 Owned (${portfolio[stock.symbol].qty})</button>`
+            : `<button class="buy" onclick="buy('${stock.symbol}')">Buy</button>`
           }
           <button class="sell" onclick="sell('${stock.symbol}')">Sell</button>
         `;
@@ -211,7 +354,7 @@
       setTimeout(() => toast.classList.remove("show"), 2000);
     }
 
-    // ✅ Buy function with feedback
+    // ✅ Buy
     function buy(symbol) {
       const stock = stocks.find(s => s.symbol === symbol);
       if (funds >= stock.price) {
@@ -228,7 +371,7 @@
       }
     }
 
-    // ✅ Sell function with feedback
+    // ✅ Sell
     function sell(symbol) {
       if (portfolio[symbol] && portfolio[symbol].qty > 0) {
         const stock = stocks.find(s => s.symbol === symbol);
@@ -243,7 +386,7 @@
       }
     }
 
-    // ✅ Live Price Updates
+    // ✅ Live price updates
     function updatePrices() {
       stocks.forEach(stock => {
         const change = (Math.random() - 0.5) * 20;

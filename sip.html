@@ -3,213 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIP Calculator | V Stock Future</title>
+  <title>Sign Up | V Stock Future</title>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: "Roboto", sans-serif;
-      background: linear-gradient(135deg, #0b0b0b, #1a1a1a);
-      color: #e6e6e6;
+      font-family: 'Roboto', sans-serif;
+      background: radial-gradient(circle at top left, #0e0e0e, #050505);
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      flex-direction: column;
-      padding: 20px;
+      position: relative;
+      color: #e6e6e6;
     }
 
-    .calculator {
-      background: #121212;
-      padding: 25px;
+    /* Floating Bubbles */
+    .bubbles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      top: 0; left: 0;
+      z-index: 0;
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -150px;
+      background: rgba(29, 185, 84, 0.2);
+      border-radius: 50%;
+      animation: rise 8s infinite ease-in;
+    }
+
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.7; }
+      100% { transform: translateY(-100vh) scale(1.3); opacity: 0; }
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 2;
+      background: rgba(18,18,18,0.85);
+      padding: 45px 40px;
       border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(29, 185, 84, 0.15);
-      width: 350px;
-      max-width: 90%;
+      border: 1px solid rgba(29,185,84,0.4);
+      backdrop-filter: blur(10px);
+      width: 340px;
       text-align: center;
-      border: 1px solid #1db954;
+      box-shadow: 0 0 25px rgba(29,185,84,0.2);
+      animation: fadeIn 1.2s ease forwards;
+      transform: translateY(20px);
+      opacity: 0;
     }
 
-    .calculator h2 {
-      margin-bottom: 20px;
+    @keyframes fadeIn {
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .logo {
+      height: 70px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      border: 2px solid #1db954;
+      background: #fff;
+    }
+
+    h2 {
       color: #1db954;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      font-weight: 600;
-      margin: 10px 0 5px;
+      margin-bottom: 25px;
+      letter-spacing: 1px;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #2a2a2a;
+      padding: 12px;
+      margin: 8px 0;
       border-radius: 8px;
-      background: #1a1a1a;
-      color: #e6e6e6;
+      border: 1px solid #333;
+      background: rgba(10,10,10,0.8);
+      color: #fff;
+      transition: 0.3s;
     }
 
     input:focus {
       border-color: #1db954;
       outline: none;
+      box-shadow: 0 0 8px rgba(29,185,84,0.3);
     }
 
-    button {
+    .signup-btn {
       width: 100%;
       padding: 12px;
+      margin-top: 15px;
       background: #1db954;
-      color: white;
-      font-size: 16px;
+      color: #fff;
       border: none;
       border-radius: 8px;
-      cursor: pointer;
       font-weight: 600;
-      transition: background 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: 0.3s;
     }
 
-    button:hover {
-      background: #17a348;
+    .signup-btn::before {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.3);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      transition: width 0.4s ease, height 0.4s ease;
     }
 
-    .result {
-      margin-top: 20px;
-      text-align: left;
-      font-size: 15px;
+    .signup-btn:hover::before {
+      width: 200%;
+      height: 500%;
     }
 
-    .result span {
-      font-weight: bold;
+    .signup-btn:hover { background: #17a348; }
+
+    p {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    a {
       color: #1db954;
+      text-decoration: none;
+      font-weight: 600;
     }
 
-    canvas {
-      margin-top: 25px;
-      width: 100% !important;
-      height: 250px !important;
-    }
-
-    footer {
-      margin-top: 30px;
-      text-align: center;
-      color: #888;
-      font-size: 12px;
-    }
+    a:hover { text-decoration: underline; }
 
     @media (max-width: 480px) {
-      .calculator {
-        padding: 20px;
-        width: 90%;
-      }
-
-      .calculator h2 {
-        font-size: 20px;
-      }
-
-      button {
-        font-size: 14px;
-      }
+      .container { width: 90%; padding: 30px; }
+      h2 { font-size: 22px; }
     }
   </style>
 </head>
 <body>
 
-  <div class="calculator">
-    <h2>💰 SIP Calculator</h2>
+  <!-- Floating Bubbles -->
+  <div class="bubbles" id="bubbles"></div>
 
-    <label for="monthly">Monthly Investment (₹):</label>
-    <input type="number" id="monthly" placeholder="e.g. 5000" />
+  <div class="container">
+    <img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo" class="logo" />
+    <h2>Create Account</h2>
 
-    <label for="rate">Expected Annual Return (%):</label>
-    <input type="number" id="rate" placeholder="e.g. 12" />
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
 
-    <label for="years">Time Period (Years):</label>
-    <input type="number" id="years" placeholder="e.g. 10" />
+    <button class="signup-btn" onclick="signup()">Sign Up</button>
 
-    <button onclick="calculateSIP()">Calculate</button>
-
-    <div class="result">
-      <p>Total Investment: <span id="totalInvestment">₹ 0</span></p>
-      <p>Estimated Returns: <span id="returns">₹ 0</span></p>
-      <p>Final Value: <span id="finalValue">₹ 0</span></p>
-    </div>
-
-    <canvas id="growthChart"></canvas>
+    <p>Already have an account? <a href="login.html">Login</a></p>
   </div>
 
-  <footer>© 2025 V Stock Future | Smart Investment Tools</footer>
-
   <script>
-    let chartInstance = null;
+    // 🎈 Floating bubbles animation
+    const bubbleContainer = document.getElementById('bubbles');
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      const size = Math.random() * 60 + 20;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${6 + Math.random() * 4}s`;
+      bubble.style.background = `rgba(29,185,84,${Math.random() * 0.4 + 0.1})`;
+      bubbleContainer.appendChild(bubble);
+    }
 
-    function calculateSIP() {
-      const monthly = parseFloat(document.getElementById("monthly").value);
-      const rate = parseFloat(document.getElementById("rate").value) / 100 / 12;
-      const years = parseFloat(document.getElementById("years").value);
-      const months = years * 12;
+    // 🟢 Signup logic
+    function signup() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-      if (isNaN(monthly) || isNaN(rate) || isNaN(years) || monthly <= 0 || rate <= 0 || years <= 0) {
-        alert("⚠️ Please enter valid values!");
+      if (!name || !email || !password) {
+        alert("Please fill all fields!");
         return;
       }
 
-      const finalValue = monthly * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate));
-      const totalInvestment = monthly * months;
-      const returns = finalValue - totalInvestment;
+      const newUser = {
+        name,
+        email,
+        password,
+        balance: 10000,
+        hasScratchBonus: false
+      };
 
-      document.getElementById("totalInvestment").innerText = "₹ " + totalInvestment.toFixed(2);
-      document.getElementById("returns").innerText = "₹ " + returns.toFixed(2);
-      document.getElementById("finalValue").innerText = "₹ " + finalValue.toFixed(2);
-
-      drawChart(totalInvestment, returns, finalValue);
-    }
-
-    function drawChart(totalInvestment, returns, finalValue) {
-      const ctx = document.getElementById("growthChart").getContext("2d");
-
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
-
-      chartInstance = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-          labels: ["Invested Amount", "Returns"],
-          datasets: [
-            {
-              data: [totalInvestment, returns],
-              backgroundColor: ["#1db954", "#00bcd4"],
-              borderColor: ["#1db954", "#00bcd4"],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              labels: { color: "#e6e6e6" },
-            },
-            tooltip: {
-              callbacks: {
-                label: (context) => "₹ " + context.formattedValue,
-              },
-            },
-          },
-        },
-      });
+      localStorage.setItem("vstock_user_data", JSON.stringify(newUser));
+      alert("🎉 Account created! You’ve received ₹10,000 points!");
+      window.location.href = "login.html";
     }
   </script>
 </body>

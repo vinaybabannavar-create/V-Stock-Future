@@ -1,56 +1,356 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>V Stock Future | Buy Stocks</title>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: 'Roboto', sans-serif;
       background: #0e0e0e;
       color: #e6e6e6;
+      overflow-x: hidden;
     }
-    header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 15px 40px; background: #121212; border-bottom: 2px solid #1db954;
-    }
-    header img { height: 50px; border-radius: 10px; border: 2px solid #1db954; background: #fff; }
-    .nav_bar { display: flex; gap: 20px; }
-    .nav_bar a { color: #e6e6e6; text-decoration: none; font-weight: 600; }
-    .nav_bar a:hover { color: #1db954; }
-    .header_actions { display: flex; align-items: center; gap: 20px; position: relative; }
-    .action_container { text-decoration: none; color: #e6e6e6; display: flex; flex-direction: column; align-items: center; }
-    .action_container:hover { color: #1db954; }
-    .bag-item-count { position: absolute; top: -5px; right: -10px; background: red; color: white; border-radius: 50%; font-size: 10px; padding: 2px 6px; }
 
-    main { text-align: center; padding: 40px 20px; max-width: 1200px; margin: auto; }
-    h1 { color: #1db954; margin-bottom: 10px; }
-    .balance-box { border: 1px solid #1db954; background: #121212; display: inline-block; padding: 10px 20px; border-radius: 8px; margin-bottom: 30px; }
-    .items-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 25px; }
-    .item-container { background: #1a1a1a; border-radius: 12px; border: 1px solid #2a2a2a; padding: 20px; transition: .3s; }
-    .item-container:hover { transform: translateY(-4px); border-color: #1db954; }
-    .item-image { width: 100%; height: 120px; object-fit: contain; background: #fff; border-radius: 8px; padding: 8px; margin-bottom: 10px; }
-    .company-name { color: #1db954; font-weight: 700; margin-bottom: 5px; }
-    .item-name { color: #ccc; margin-bottom: 6px; }
-    .price { margin-bottom: 10px; }
+    /* HEADER */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 20px;
+      background: #121212;
+      border-bottom: 2px solid #1db954;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      height: 45px;
+      border-radius: 10px;
+      border: 2px solid #1db954;
+      background: #fff;
+    }
+
+    .menu-icon {
+      font-size: 30px;
+      color: #1db954;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.3s;
+    }
+
+    .menu-icon:hover {
+      color: #17a348;
+      transform: scale(1.1);
+    }
+
+    .nav_bar {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .nav_bar a {
+      color: #e6e6e6;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .nav_bar a:hover { color: #1db954; }
+
+    .header_actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+      margin-top: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .action_container {
+      text-decoration: none;
+      color: #e6e6e6;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .action_container:hover { color: #1db954; }
+
+    .bag-item-count {
+      position: absolute;
+      top: -5px;
+      right: -10px;
+      background: red;
+      color: white;
+      border-radius: 50%;
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 240px;
+      height: 100%;
+      background: #111;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.6);
+      padding-top: 70px;
+      transition: left 0.4s ease;
+      z-index: 2000;
+      overflow-y: auto;
+    }
+
+    .sidebar.active { left: 0; }
+
+    .sidebar img {
+      width: 100px;
+      display: block;
+      margin: 0 auto 20px;
+      border-radius: 15px;
+    }
+
+    .sidebar nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      font-size: 15px;
+      color: #ccc;
+      transition: 0.3s;
+      text-decoration: none;
+    }
+
+    .sidebar nav a:hover {
+      background: #1db954;
+      color: #fff;
+    }
+
+    .sidebar .logout {
+      display: block;
+      margin: 25px;
+      color: #ff4d4d;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .sidebar .logout:hover { color: #ff6666; }
+
+    /* OVERLAY */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1500;
+      transition: opacity 0.3s ease;
+    }
+
+    .overlay.active { display: block; }
+
+    /* MAIN */
+    main {
+      text-align: center;
+      padding: 30px 15px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #1db954;
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+
+    .balance-box {
+      border: 1px solid #1db954;
+      background: #121212;
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 15px;
+    }
+
+    .items-container {
+      display: grid;
+      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    .item-container {
+      background: #1a1a1a;
+      border-radius: 12px;
+      border: 1px solid #2a2a2a;
+      padding: 15px;
+      transition: 0.3s;
+    }
+
+    .item-container:hover {
+      transform: translateY(-4px);
+      border-color: #1db954;
+    }
+
+    .item-image {
+      width: 100%;
+      height: 100px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px;
+      margin-bottom: 10px;
+    }
+
+    .company-name { color: #1db954; font-weight: 700; margin-bottom: 5px; font-size: 15px; }
+    .item-name { color: #ccc; margin-bottom: 6px; font-size: 13px; }
+    .price { margin-bottom: 10px; font-size: 13px; }
     .current-price { color: #1db954; font-weight: 700; }
-    .original-price { text-decoration: line-through; color: #888; font-size: 13px; margin-left: 5px; }
-    .discount { color: #ff4d4d; font-size: 13px; margin-left: 5px; }
-    .btn-add-bag { background: #1db954; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; }
+    .original-price {
+      text-decoration: line-through;
+      color: #888;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+    .discount { color: #ff4d4d; font-size: 12px; margin-left: 5px; }
+
+    .btn-add-bag {
+      background: #1db954;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+    }
+
     .btn-add-bag:hover { background: #17a348; }
-    .toast { position: fixed; bottom: 20px; right: 20px; background: #1db954; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; opacity: 0; transform: translateY(30px); transition: .3s; }
-    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      background: #1db954;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      z-index: 3000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 📱 Mobile: 2 cards per row */
+    @media (max-width: 600px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 15px;
+      }
+
+      .nav_bar, .header_actions {
+        justify-content: flex-start;
+      }
+
+      .menu-icon {
+        font-size: 28px;
+      }
+
+      .items-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .item-container {
+        padding: 10px;
+      }
+
+      .item-image {
+        height: 90px;
+      }
+
+      .company-name { font-size: 14px; }
+      .item-name, .price { font-size: 12px; }
+      .btn-add-bag { font-size: 12px; padding: 6px; }
+      h1 { font-size: 20px; }
+      .balance-box { font-size: 14px; }
+    }
+
+    /* 📱 Ultra-small devices (1 card per row) */
+    @media (max-width: 360px) {
+      .items-container {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <a href="dashboard.html"><img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo"></a>
-    <nav class="nav_bar">
-      <a href="#">Markets</a><a href="#">Top Stocks</a><a href="#">Tech</a><a href="#">Banks</a><a href="#">Global</a>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo" />
+    <nav>
+      <a href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="viewstocks.html"><span class="material-symbols-outlined">bar_chart</span>View Stocks</a>
+      <a href="index.html"><span class="material-symbols-outlined">trending_up</span>Buy Stocks</a>
+      <a href="bag.html"><span class="material-symbols-outlined">shopping_bag</span>Stock Bag</a>
+      <a href="sip.html"><span class="material-symbols-outlined">calculate</span>SIP Calculator</a>
+      <a href="mypurchases.html"><span class="material-symbols-outlined">check_circle</span>Buy Success</a>
+      <a href="scratchcard.html"><span class="material-symbols-outlined">redeem</span>Scratch Cards</a>
     </nav>
+    <a href="login.html" class="logout"><span class="material-symbols-outlined">logout</span>Logout</a>
+  </aside>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <span class="material-symbols-outlined menu-icon" id="menuBtn">menu</span>
+      <a href="dashboard.html"><img class="logo" src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo"></a>
+    </div>
+
+    <nav class="nav_bar">
+      <a href="#">Markets</a>
+      <a href="#">Top Stocks</a>
+      <a href="#">Tech</a>
+      <a href="#">Banks</a>
+      <a href="#">Global</a>
+    </nav>
+
     <div class="header_actions">
       <a class="action_container" href="predicto.html">📊 Predicto</a>
       <a class="action_container" href="sip.html">📈 SIP</a>
@@ -68,19 +368,34 @@
 
   <script src="items.js"></script>
   <script>
+    // Sidebar toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      menuBtn.textContent = sidebar.classList.contains('active') ? 'close' : 'menu';
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      menuBtn.textContent = 'menu';
+    });
+
+    // Stock buying logic
     const user = JSON.parse(localStorage.getItem("vstock_user_data"));
     if (!user) { alert("Please login first!"); window.location.href = "login.html"; }
 
     document.getElementById("balance").textContent = user.balance;
-
     const container = document.getElementById("itemsContainer");
     const bagCount = document.getElementById("bagCount");
 
-    // Load existing bag count
     const existingBag = JSON.parse(localStorage.getItem("vstock_bag")) || [];
     bagCount.textContent = existingBag.length;
 
-    // Display all items
     items.forEach(item => {
       const div = document.createElement("div");
       div.className = "item-container";
@@ -97,7 +412,6 @@
       container.appendChild(div);
     });
 
-    // ✅ Updated addToBag (complete version)
     function addToBag(itemId) {
       const user = JSON.parse(localStorage.getItem("vstock_user_data"));
       if (!user) {
@@ -111,22 +425,17 @@
 
       let bag = JSON.parse(localStorage.getItem("vstock_bag")) || [];
 
-      // Check if already in bag
       if (bag.some(i => i.id === item.id)) {
         showToast("⚠️ Already in Bag!", "#ff4d4d");
         return;
       }
 
-      // ✅ Push full item object (includes image, prices, etc.)
       bag.push(item);
-
       localStorage.setItem("vstock_bag", JSON.stringify(bag));
       bagCount.textContent = bag.length;
-
       showToast(`✅ ${item.company} added to Bag!`);
     }
 
-    // Toast message
     function showToast(msg, color = "#1db954") {
       const toast = document.getElementById("toast");
       toast.style.background = color;

@@ -9,12 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
-    /* RESET & BASE */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Roboto', sans-serif;
@@ -24,9 +19,7 @@
       scroll-behavior: smooth;
     }
 
-    a {
-      text-decoration: none;
-    }
+    a { text-decoration: none; color: inherit; }
 
     /* HEADER */
     header {
@@ -42,97 +35,94 @@
       backdrop-filter: blur(10px);
     }
 
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
     .logo_container img {
-      height: 60px;
+      height: 55px;
       border-radius: 12px;
       transition: transform 0.3s ease;
     }
 
-    .logo_container img:hover {
-      transform: scale(1.08);
-    }
+    .logo_container img:hover { transform: scale(1.08); }
 
-    .nav_bar {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-    }
-
-    .nav_bar a {
-      color: #e6e6e6;
-      font-size: 15px;
-      font-weight: 600;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .nav_bar a::after {
-      content: '';
-      position: absolute;
-      width: 0%;
-      height: 2px;
-      left: 0;
-      bottom: -4px;
-      background: #1db954;
-      transition: width 0.3s ease;
-    }
-
-    .nav_bar a:hover {
+    /* MENU ICON */
+    .menu-icon {
+      font-size: 32px;
+      cursor: pointer;
       color: #1db954;
-      transform: scale(1.05);
+      transition: 0.3s;
+      user-select: none;
     }
 
-    .nav_bar a:hover::after {
-      width: 100%;
+    .menu-icon:hover {
+      color: #17a348;
+      transform: scale(1.1);
     }
 
-    .header_actions {
+    /* SIDEBAR */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -260px;
+      width: 260px;
+      height: 100%;
+      background: #111;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.6);
+      padding-top: 70px;
+      transition: left 0.4s ease;
+      z-index: 2000;
+      overflow-y: auto;
+    }
+
+    .sidebar.active { left: 0; }
+
+    .sidebar img {
+      width: 120px;
+      display: block;
+      margin: 0 auto 30px;
+      border-radius: 15px;
+    }
+
+    .sidebar nav a {
       display: flex;
-      gap: 25px;
       align-items: center;
-    }
-
-    .action_container {
-      color: #e6e6e6;
-      font-size: 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      gap: 12px;
+      padding: 14px 25px;
+      font-size: 15px;
+      color: #ccc;
       transition: 0.3s;
     }
 
-    .action_container:hover {
-      color: #1db954;
-      transform: scale(1.15);
-    }
-
-    /* TICKER */
-    .ticker {
-      background: #111;
+    .sidebar nav a:hover {
+      background: #1db954;
       color: #fff;
-      padding: 10px 0;
-      overflow: hidden;
-      white-space: nowrap;
-      border-bottom: 1px solid #333;
-      box-shadow: inset 0 -2px 4px rgba(0,0,0,0.5);
     }
 
-    .ticker span {
-      display: inline-block;
-      padding: 0 50px;
+    .sidebar .logout {
+      display: block;
+      margin: 25px;
+      color: #ff4d4d;
       font-weight: 600;
-      animation: ticker 22s linear infinite;
-      font-size: 15px;
     }
 
-    @keyframes ticker {
-      0% { transform: translateX(100%); }
-      100% { transform: translateX(-100%); }
+    .sidebar .logout:hover { color: #ff6666; }
+
+    /* OVERLAY */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1500;
+      transition: opacity 0.3s ease;
     }
 
-    .up { color: #1db954; }
-    .down { color: #ff4d4d; }
+    .overlay.active { display: block; }
 
     /* HERO */
     .hero {
@@ -155,19 +145,12 @@
       margin-bottom: 15px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      animation: fadeIn 1.5s ease;
     }
 
     .hero p {
       font-size: 18px;
       color: #ccc;
       margin-bottom: 35px;
-      animation: fadeIn 2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .cta-buttons {
@@ -182,7 +165,6 @@
       padding: 14px 30px;
       border-radius: 30px;
       font-weight: 600;
-      letter-spacing: 0.5px;
       transition: 0.3s ease;
       box-shadow: 0 0 10px rgba(29, 185, 84, 0.4);
     }
@@ -217,7 +199,7 @@
     }
 
     .stock-card:hover {
-      transform: scale(1.05) rotateX(3deg) rotateY(-2deg);
+      transform: scale(1.05);
       border-color: #1db954;
       box-shadow: 0 10px 30px rgba(29, 185, 84, 0.3);
     }
@@ -251,78 +233,39 @@
       transform: scale(1.1);
     }
 
-    /* FOOTER */
-    footer {
-      background: #121212;
-      color: #ccc;
-      padding: 50px 20px 30px;
-      margin-top: 60px;
-    }
-
-    .footer_container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 30px;
-    }
-
-    .footer_column h3 {
-      margin-bottom: 15px;
-      font-size: 17px;
-      color: #1db954;
-      text-transform: uppercase;
-    }
-
-    .footer_column a {
-      display: block;
-      color: #ccc;
-      font-size: 14px;
-      margin: 6px 0;
-      transition: color 0.3s;
-    }
-
-    .footer_column a:hover {
-      color: #1db954;
-    }
-
-    .copyright {
-      text-align: center;
-      margin-top: 25px;
-      font-size: 13px;
-      color: #777;
-      border-top: 1px solid #333;
-      padding-top: 15px;
-    }
-
-    /* RESPONSIVE */
     @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        gap: 15px;
-      }
-
-      .nav_bar {
-        flex-wrap: wrap;
-        gap: 15px;
-      }
-
-      .hero h1 {
-        font-size: 36px;
-      }
-
-      .hero p {
-        font-size: 16px;
-      }
+      .hero h1 { font-size: 36px; }
+      .hero p { font-size: 16px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Logo" />
+    <nav>
+      <a href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="viewstocks.html"><span class="material-symbols-outlined">bar_chart</span>View Stocks</a>
+      <a href="index.html"><span class="material-symbols-outlined">trending_up</span>Buy Stocks</a>
+      <a href="bag.html"><span class="material-symbols-outlined">shopping_bag</span>Stock Bag</a>
+      <a href="sip.html"><span class="material-symbols-outlined">calculate</span>SIP Calculator</a>
+      <a href="mypurchases.html"><span class="material-symbols-outlined">check_circle</span>Buy Success</a>
+      <a href="scratchcard.html"><span class="material-symbols-outlined">redeem</span>Scratch Cards</a>
+    </nav>
+    <a href="login.html" class="logout"><span class="material-symbols-outlined">logout</span>Logout</a>
+  </aside>
+
+  <!-- Header -->
   <header>
-    <div class="logo_container">
-      <a href="#">
-        <img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Stock Logo"/>
-      </a>
+    <div class="header-left">
+      <span class="material-symbols-outlined menu-icon" id="menuBtn">menu</span>
+      <div class="logo_container">
+        <a href="#"><img src="https://static.vecteezy.com/system/resources/previews/017/765/056/non_2x/finance-logo-on-v-letter-concept-marketing-and-financial-business-logo-free-vector.jpg" alt="Stock Logo"/></a>
+      </div>
     </div>
 
     <nav class="nav_bar">
@@ -332,38 +275,9 @@
       <a href="#">Tech</a>
       <a href="#">Global</a>
     </nav>
-
-    <div class="header_actions">
-      <a class="action_container" href="index.html">
-        <span class="material-symbols-outlined">person</span>
-        <span>Stocks</span>
-      </a>
-
-      <a class="action_container" href="predicto.html">
-        <span class="material-symbols-outlined">analytics</span>
-        <span>Predicto</span>
-      </a>
-
-      <a class="action_container" href="sip.html">
-        <span class="material-symbols-outlined">show_chart</span>
-        <span>SIP</span>
-      </a>
-
-      <a class="action_container" href="bag.html">
-        <span class="material-symbols-outlined">shopping_bag</span>
-        <span>Bag</span>
-      </a>
-    </div>
   </header>
 
-  <div class="ticker">
-    <span>NIFTY-50 19,850 <span class="up">+1.2%</span></span>
-    <span>Reliance ₹2,350 <span class="down">-0.8%</span></span>
-    <span>Tesla $280 <span class="up">+2.4%</span></span>
-    <span>SBI ₹620 <span class="up">+0.9%</span></span>
-    <span>HDFC Bank ₹1,600 <span class="down">-1.1%</span></span>
-  </div>
-
+  <!-- HERO -->
   <section class="hero">
     <h1>Welcome to V Stock Future</h1>
     <p>Track live markets, explore top companies, and calculate your investments smartly.</p>
@@ -373,84 +287,38 @@
     </div>
   </section>
 
+  <!-- STOCKS SECTION -->
   <main>
-    <h2 style="text-align:center; color:#1db954; margin-bottom:25px; font-size:28px;">Top Stocks</h2>
+    <h2 style="text-align:center; color:#1db954; margin-bottom:25px; font-size:28px;">Top 8 Stocks</h2>
     <div class="stock-grid">
-      <div class="stock-card">
-        <div class="stock-name">NIFTY-50</div>
-        <div class="stock-price">19,850</div>
-        <div class="stock-change up">+1.2%</div>
-        <a href="nifty.html"><button>Nifty-50 LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">Reliance</div>
-        <div class="stock-price">₹2,350</div>
-        <div class="stock-change down">-0.8%</div>
-        <a href="reliance.html"><button>Reliance LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">Sensex</div>
-        <div class="stock-price">66,200</div>
-        <div class="stock-change up">+0.5%</div>
-        <a href="sensex.html"><button>Sensex LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">Tesla</div>
-        <div class="stock-price">$280</div>
-        <div class="stock-change up">+2.4%</div>
-        <a href="tesla.html"><button>Tesla LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">ICICI Bank</div>
-        <div class="stock-price">₹960</div>
-        <div class="stock-change down">-0.6%</div>
-        <a href="icici.html"><button>ICICI LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">SBI</div>
-        <div class="stock-price">₹807.85</div>
-        <div class="stock-change down">-1.1%</div>
-        <a href="sbi.html"><button>SBI LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">Mahindra</div>
-        <div class="stock-price">₹3,211.3</div>
-        <div class="stock-change down">-1.5%</div>
-        <a href="mahindra.html"><button>Mahindra LIVE Chart</button></a>
-      </div>
-      <div class="stock-card">
-        <div class="stock-name">HDFC Bank</div>
-        <div class="stock-price">₹1,600</div>
-        <div class="stock-change down">-1.1%</div>
-        <a href="hdfc.html"><button>HDFC LIVE Chart</button></a>
-      </div>
+      <div class="stock-card"><div class="stock-name">Tesla</div><div class="stock-price">$280</div><div class="stock-change up">+2.4%</div><a href="telsa.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">Reliance</div><div class="stock-price">₹2,350</div><div class="stock-change down">-0.8%</div><a href="reliance.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">Nifty 50</div><div class="stock-price">19,850</div><div class="stock-change up">+1.2%</div><a href="nifty.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">SBI</div><div class="stock-price">₹620</div><div class="stock-change up">+0.9%</div><a href="sbi.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">HDFC</div><div class="stock-price">₹1,600</div><div class="stock-change down">-1.1%</div><a href="hdfc.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">ICICI</div><div class="stock-price">₹1,450</div><div class="stock-change up">+1.4%</div><a href="icici.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">Mahindra & Mahindra Ltd. </div><div class="stock-price">₹3,560</div><div class="stock-change up">+0.6%</div><a href="mahindra.html"><button>View LIVE Chart</button></a></div>
+      <div class="stock-card"><div class="stock-name">Sensex</div><div class="stock-price">66,200</div><div class="stock-change up">+0.5%</div><a href="sensex.html"><button>View LIVE Chart</button></a></div>
     </div>
   </main>
 
-  <footer>
-    <div class="footer_container">
-      <div class="footer_column">
-        <h3>Markets</h3>
-        <a href="#">NIFTY-50</a>
-        <a href="#">Sensex</a>
-        <a href="#">NASDAQ</a>
-      </div>
-      <div class="footer_column">
-        <h3>Companies</h3>
-        <a href="#">Reliance</a>
-        <a href="#">Tesla</a>
-        <a href="#">Mahindra</a>
-      </div>
-      <div class="footer_column">
-        <h3>Banks</h3>
-        <a href="#">ICICI Bank</a>
-        <a href="#">HDFC Bank</a>
-        <a href="#">SBI</a>
-      </div>
-    </div>
-    <div class="copyright">
-      © 2025 V Stock Future | Designed for Smart Investors
-    </div>
-  </footer>
+  <script>
+    // Sidebar toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    menuBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      menuBtn.textContent = sidebar.classList.contains('active') ? 'close' : 'menu';
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+      menuBtn.textContent = 'menu';
+    });
+  </script>
 </body>
 </html>

@@ -11,6 +11,7 @@
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: 'Roboto', sans-serif;
       background: #0b0b0b;
@@ -32,6 +33,7 @@
       align-items: center;
       padding: 20px 0;
       transition: all 0.3s ease;
+      z-index: 1000;
     }
 
     .sidebar img {
@@ -74,7 +76,7 @@
       font-weight: 600;
     }
 
-    /* Main */
+    /* Main Section */
     main {
       margin-left: 230px;
       flex: 1;
@@ -183,12 +185,24 @@
 
     .btns a:hover { background: #17a348; }
 
-    canvas {
-      width: 100%;
-      height: 250px;
+    /* Chart Container */
+    .chart-container {
+      background: #151515;
+      border: 1px solid #222;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 25px;
+      box-shadow: 0 0 10px rgba(29,185,84,0.2);
+      max-width: 100%;
+      height: 320px; /* ✅ Fixed height */
     }
 
-    /* Mobile Responsive */
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Mobile Sidebar */
     .menu-btn {
       display: none;
       font-size: 28px;
@@ -198,19 +212,66 @@
       cursor: pointer;
     }
 
+    /* Overlay for mobile */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 900;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* 📱 Responsive */
     @media (max-width: 900px) {
       .sidebar {
         position: fixed;
         left: -230px;
-        z-index: 999;
+        z-index: 1001;
       }
       .sidebar.active { left: 0; }
       main { margin-left: 0; padding: 20px; }
       .menu-btn { display: block; }
     }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 22px; }
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .card {
+        padding: 15px;
+      }
+      .card h3 { font-size: 14px; }
+      .card p { font-size: 16px; }
+      .btns a {
+        font-size: 13px;
+        padding: 8px 16px;
+      }
+      .chart-container {
+        height: 240px; /* 📱 Smaller height for phones */
+        padding: 15px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Overlay (for mobile) -->
+  <div class="overlay" id="overlay"></div>
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -240,10 +301,8 @@
       </div>
     </header>
 
-    <!-- 🎁 Reward Banner (appears dynamically) -->
     <div id="rewardBanner"></div>
 
-    <!-- Cards -->
     <section class="cards">
       <div class="card">
         <h3>Your Balance</h3>
@@ -267,25 +326,35 @@
       </div>
     </section>
 
-    <!-- Action Buttons -->
     <div class="btns">
       <a href="bag.html">🛍️ Buy Stocks</a>
       <a href="scratchcard.html" id="scratchLink">🎁 Scratch Card</a>
       <a href="add_money.html">🏦 Add Points</a>
     </div>
 
-    <!-- Chart -->
-    <canvas id="growthChart"></canvas>
+    <!-- 📊 Fixed height chart -->
+    <div class="chart-container">
+      <canvas id="growthChart"></canvas>
+    </div>
   </main>
 
   <script>
-    // ✅ Sidebar toggle
+    // Sidebar toggle for mobile
     const sidebar = document.getElementById("sidebar");
-    document.getElementById("menuBtn").addEventListener("click", () => {
+    const overlay = document.getElementById("overlay");
+    const menuBtn = document.getElementById("menuBtn");
+
+    menuBtn.addEventListener("click", () => {
       sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
     });
 
-    // ✅ Load user
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("active");
+      overlay.classList.remove("active");
+    });
+
+    // Load user data
     const user = JSON.parse(localStorage.getItem("vstock_user_data"));
     const profileName = document.querySelector(".profile span");
     const balanceEl = document.getElementById("balance");
@@ -297,42 +366,41 @@
       balanceEl.textContent = `₹ ${user.balance}`;
     }
 
-    // ✅ Reward Banner
+    // Reward Banner
     const banner = document.getElementById("rewardBanner");
     if (user?.hasUnlockedScratch && !user?.hasScratchBonus) {
       banner.innerHTML = `
         <div class="reward-banner">
           🎉 Congratulations ${user.name || "Investor"}! You’ve unlocked your daily scratch card!
           <a href="scratchcard.html">👉 Scratch Now</a>
-        </div>
-      `;
+        </div>`;
     }
 
-    // ✅ Purchases Summary
+    // Purchases Summary
     const purchases = JSON.parse(localStorage.getItem("vstock_purchased")) || [];
     const purchasesEl = document.getElementById("purchasesSummary");
     if (purchases.length === 0) {
-      purchasesEl.textContent = "No stocks purchased yet";
+      purchasesEl.textContent = "";
     } else {
       const totalSpent = purchases.reduce((sum, i) => sum + i.price, 0);
       purchasesEl.textContent = `${purchases.length} stocks • ₹${totalSpent}`;
     }
 
-    // ✅ Logout
+    // Logout
     document.querySelector(".logout").addEventListener("click", e => {
       e.preventDefault();
-      localStorage.removeItem("vstock_user");
       localStorage.removeItem("vstock_user_data");
       window.location.href = "login.html";
     });
 
-    // ✅ Chart
+    // Chart.js growth chart
     const ctx = document.getElementById('growthChart');
     new Chart(ctx, {
       type: 'line',
       data: {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
         datasets: [{
+          label: 'Portfolio Growth',
           data: [100, 120, 140, 130, 160, 190, 210],
           borderColor: '#1db954',
           backgroundColor: 'rgba(29,185,84,0.1)',
@@ -341,6 +409,8 @@
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: { legend: { display: false }},
         scales: {
           x: { grid: { color: '#222' }, ticks: { color: '#aaa' } },
